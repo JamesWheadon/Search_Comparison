@@ -15,6 +15,7 @@ class Node:
     def connect_to_node(self, target_node):
         new_edge = Edge(self, target_node)
         self.edges.append(new_edge)
+        return new_edge
 
 
 class Edge:
