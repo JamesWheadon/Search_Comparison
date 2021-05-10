@@ -13,6 +13,7 @@ class DijkstraSearch:
         self.expanded_nodes = []
         self.potential_nodes = []
         self.completed = False
+        self.path = []
     
     def find_start(self):
         start_node = self.map.find_node(self.start[0], self.start[1])
@@ -41,7 +42,6 @@ class DijkstraSearch:
         self.expanded_nodes.append(self.new_node.value.graph_node)
     
     def new_vertex(self):
-        print(self.potential_nodes, self.new_node.value.graph_node, self.target)
         min_f_node = min(self.potential_nodes, key=attrgetter('value.f'))
         self.new_node = min_f_node
         self.potential_nodes = [node for node in self.potential_nodes if node.value.graph_node != self.new_node.value.graph_node]
@@ -54,6 +54,8 @@ class DijkstraSearch:
         while not self.completed:
             self.expand_vertex()
             self.new_vertex()
+        self.path = self.new_node.get_path()
+        
 
 class DijkstraVertex:
     def __init__(self, graph_node, distance):
@@ -67,3 +69,4 @@ graph = Graph([[1, 1], [1, 1]])
 search = DijkstraSearch(graph, (0, 0), (1, 1))
 search.search()
 search.tree.render_tree()
+print(search.path)
