@@ -1,4 +1,4 @@
-from nodes_edges import Node, Edge
+from .nodes_edges import Node, Edge
 
 class Graph:
     def __init__(self, map_matrix):
@@ -43,9 +43,3 @@ class Graph:
             if right_node:
                 edge = node.connect_to_node(right_node)
                 self.edges.append(edge)
-
-graph = Graph([[1, 1], [1, 1]])
-for node in graph.nodes:
-    print(node)
-for edge in graph.edges:
-    print(edge)

@@ -14,7 +14,7 @@ class TreeNode:
             self.children.append(child_node)
             return child_node
         else:
-            raise ChildError('Incompatible child type')
+            raise ChildError
     
     def render_node(self, last_child, previous):
         if last_child:
@@ -30,5 +30,6 @@ class TreeNode:
 
 
 class ChildError(Exception):
-    def __init__(self, message):
-        self.message = message
+    def __init__(self):
+        self.message = 'Incompatible child type'
+        super().__init__(self.message)
