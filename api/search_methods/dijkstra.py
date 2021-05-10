@@ -64,9 +64,3 @@ class DijkstraVertex:
     
     def __str__(self):
         return f"Node: {self.graph_node.name}, distance: {self.f}"
-
-graph = Graph([[1, 1], [1, 1]])
-search = DijkstraSearch(graph, (0, 0), (1, 1))
-search.search()
-search.tree.render_tree()
-print(search.path)
