@@ -7,11 +7,19 @@ class DijkstraSearch:
         self.map = graph
         self.start = start
         self.target = target
+        self.tree = Tree
+        self.new_node = TreeNode
+        self.expanded_nodes = []
+        self.completed = False
     
     def find_start(self):
         start_node = self.map.find_node(self.start[0], self.start[1])
         if start_node:
             self.start = start_node
+            self.expanded_nodes.append(start_node)
+            start = TreeNode(DijkstraVertex(start_node, 0))
+            self.new_node = start
+            self.tree = Tree(start)
         else:
             raise PositionError(self.start)
     
@@ -22,11 +30,23 @@ class DijkstraSearch:
         else:
             raise PositionError(self.target)
     
+    def expand_vertex(self):
+        for edge in self.new_node.value.graph_node.edges:
+            if edge.end not in self.expanded_nodes:
+                vertex = DijkstraVertex(edge.end, self.new_node.value.distance + edge.weight)
+                search_node = TreeNode(vertex, self.new_node)
+        self.expanded_nodes.append(self.new_node.value.graph_node)
+    
     def search(self):
         self.find_start()
         self.find_target()
-    
+
+class DijkstraVertex:
+    def __init__(self, graph_node, distance):
+        self.graph_node = graph_node
+        self.f = distance
 
 graph = Graph([[1, 1], [1, 1]])
-search = DijkstraSearch(graph, (0, 0), (1, 2))
+search = DijkstraSearch(graph, (0, 0), (1, 1))
 search.search()
+search.tree.render_tree()
