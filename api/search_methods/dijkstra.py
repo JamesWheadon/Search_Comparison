@@ -28,7 +28,7 @@ class DijkstraSearch:
     def find_target(self):
         target_node = self.map.find_node(self.target[0], self.target[1])
         if target_node:
-            self.start = target_node
+            self.target = target_node
         else:
             raise PositionError(self.target)
     
@@ -36,20 +36,24 @@ class DijkstraSearch:
         for edge in self.new_node.value.graph_node.edges:
             if edge.end not in self.expanded_nodes:
                 vertex = DijkstraVertex(edge.end, self.new_node.value.f + edge.weight)
-                search_node = TreeNode(vertex, self.new_node)
+                search_node = self.new_node.add_child(vertex)
                 self.potential_nodes.append(search_node)
         self.expanded_nodes.append(self.new_node.value.graph_node)
     
     def new_vertex(self):
+        print(self.potential_nodes, self.new_node.value.graph_node, self.target)
         min_f_node = min(self.potential_nodes, key=attrgetter('value.f'))
         self.new_node = min_f_node
         self.potential_nodes = [node for node in self.potential_nodes if node.value.graph_node != self.new_node.value.graph_node]
+        if self.new_node.value.graph_node == self.target:
+            self.completed = True
     
     def search(self):
         self.find_start()
         self.find_target()
-        self.expand_vertex()
-        self.new_vertex()
+        while not self.completed:
+            self.expand_vertex()
+            self.new_vertex()
 
 class DijkstraVertex:
     def __init__(self, graph_node, distance):
