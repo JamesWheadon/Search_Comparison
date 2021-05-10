@@ -4,9 +4,6 @@ class TreeNode:
         self.children = []
         self.depth = 0
     
-    def __str__(self):
-        return self.value
-    
     def add_child(self, child):
         if type(self.value) == type(child):
             child_node = TreeNode(child)

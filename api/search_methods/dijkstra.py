@@ -1,6 +1,7 @@
 from errors import PositionError
 from graph import Graph, Node, Edge
 from tree import Tree, TreeNode
+from operator import attrgetter
 
 class DijkstraSearch:
     def __init__(self, graph, start, target):
@@ -10,6 +11,7 @@ class DijkstraSearch:
         self.tree = Tree
         self.new_node = TreeNode
         self.expanded_nodes = []
+        self.potential_nodes = []
         self.completed = False
     
     def find_start(self):
@@ -33,18 +35,29 @@ class DijkstraSearch:
     def expand_vertex(self):
         for edge in self.new_node.value.graph_node.edges:
             if edge.end not in self.expanded_nodes:
-                vertex = DijkstraVertex(edge.end, self.new_node.value.distance + edge.weight)
+                vertex = DijkstraVertex(edge.end, self.new_node.value.f + edge.weight)
                 search_node = TreeNode(vertex, self.new_node)
+                self.potential_nodes.append(search_node)
         self.expanded_nodes.append(self.new_node.value.graph_node)
+    
+    def new_vertex(self):
+        min_f_node = min(self.potential_nodes, key=attrgetter('value.f'))
+        self.new_node = min_f_node
+        self.potential_nodes = [node for node in self.potential_nodes if node.value.graph_node != self.new_node.value.graph_node]
     
     def search(self):
         self.find_start()
         self.find_target()
+        self.expand_vertex()
+        self.new_vertex()
 
 class DijkstraVertex:
     def __init__(self, graph_node, distance):
         self.graph_node = graph_node
         self.f = distance
+    
+    def __str__(self):
+        return f"Node: {self.graph_node.name}, distance: {self.f}"
 
 graph = Graph([[1, 1], [1, 1]])
 search = DijkstraSearch(graph, (0, 0), (1, 1))
