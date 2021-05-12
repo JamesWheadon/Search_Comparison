@@ -1,8 +1,9 @@
 from errors import PositionError # type: ignore
+from graph import Graph #type: ignore
 from tree import Tree, TreeNode # type: ignore
 from operator import attrgetter
 
-class DijkstraSearch:
+class AStarSearch:
     def __init__(self, graph, start, target):
         self.map = graph
         self.start = start
@@ -19,7 +20,7 @@ class DijkstraSearch:
         if start_node:
             self.start = start_node
             self.expanded_nodes.append(start_node)
-            start = TreeNode(AStarVertex(start_node, 0))
+            start = TreeNode(AStarVertex(start_node, 0, self.target, 'Manhattan'))
             self.new_node = start
             self.tree = Tree(start)
         else:
@@ -33,12 +34,11 @@ class DijkstraSearch:
             raise PositionError(self.target)
     
     def search(self):
-        self.find_start()
         self.find_target()
+        self.find_start()
         
 
 class AStarVertex:
-
     def __init__(self, graph_node, distance, target, heuristic):
         self.heuristic_methods = {'Manhattan': self.manhattan}
         self.graph_node = graph_node
