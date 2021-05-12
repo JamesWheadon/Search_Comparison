@@ -33,9 +33,30 @@ class AStarSearch:
         else:
             raise PositionError(self.target)
     
+    def expand_vertex(self):
+        for edge in self.new_node.value.graph_node.edges:
+            if edge.end not in self.expanded_nodes:
+                vertex = AStarVertex(edge.end, self.new_node.value.g + edge.weight, self.target, 'Manhattan')
+                search_node = self.new_node.add_child(vertex)
+                self.potential_nodes.append(search_node)
+        self.expanded_nodes.append(self.new_node.value.graph_node)
+    
+    def new_vertex(self):
+        min_f_value = min(self.potential_nodes, key=attrgetter('value.f')).value.f
+        min_f_nodes = [node for node in self.potential_nodes if node.value.f == min_f_value]
+        max_g_node = max(min_f_nodes, key=attrgetter('value.g'))
+        self.new_node = max_g_node
+        self.potential_nodes = [node for node in self.potential_nodes if node.value.graph_node != self.new_node.value.graph_node]
+        if self.new_node.value.graph_node == self.target:
+            self.completed = True
+    
     def search(self):
         self.find_target()
         self.find_start()
+        while not self.completed:
+            self.expand_vertex()
+            self.new_vertex()
+        self.path = self.new_node.get_path()
         
 
 class AStarVertex:
@@ -51,3 +72,10 @@ class AStarVertex:
     
     def manhattan(self, start_node, target_node):
         return abs(start_node.x - target_node.x) + abs(start_node.y - target_node.y)
+
+graph = Graph([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+search = AStarSearch(graph, (0, 0), (2, 2))
+search.search()
+for node in search.path:
+    print(node.value.graph_node, node.value.f)
+search.tree.render_tree()
