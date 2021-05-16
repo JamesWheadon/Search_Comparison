@@ -38,24 +38,27 @@ class ReverseAStar:
         max_g_node = max(min_f_nodes, key=attrgetter('g'))
         self.new_node = max_g_node
         self.potential_nodes = [node for node in self.potential_nodes if node.graph_node != self.new_node.graph_node]
-        self.update_database()
+        self.update_db()
     
-    def update_database(self):
+    def update_db(self):
         cursor, db = self.connecto_to_db()
         cursor.execute('INSERT INTO heuristics (node_name, node_h) VALUES (?, ?)', (self.new_node.graph_node.name, self.new_node.g))
-        for row in cursor.execute('SELECT * FROM heuristics'):
-            print(row)
         db.commit()
         db.close()
     
     def initialise(self):
         self.initialise_db()
         self.new_node = ReverseAStarVertex(self.target, 0, self.start)
+        self.update_db()
     
     def find_heuristic(self, node):
         while node not in self.expanded_nodes:
             self.expand_vertex()
-            self.new_vertex()
+            if self.potential_nodes:
+                self.new_vertex()
+        cursor, db = self.connecto_to_db()
+        for row in cursor.execute('SELECT node_h FROM heuristics WHERE node_name=(?)', (node.name,)):
+            return row[0]
 
 
 class ReverseAStarVertex:
@@ -70,7 +73,3 @@ class ReverseAStarVertex:
     
     def manhattan(self, start_node):
         return abs(self.graph_node.x - start_node.x) + abs(self.graph_node.y - start_node.y)
-
-graph = Graph([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
-search = ReverseAStar(graph, graph.nodes[0], graph.nodes[-1])
-search.find_heuristic(graph.nodes[4])
