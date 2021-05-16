@@ -1,31 +1,34 @@
-from errors import PositionError # type: ignore
 from operator import attrgetter
+from graph import Graph #type: ignore
 import sqlite3
 
 class ReverseAStar:
-    def __init__(self, graph, target):
+    def __init__(self, graph, start, target):
         self.map = graph
+        self.start = start
         self.target = target
+        self.new_node = ReverseAStarVertex
         self.expanded_nodes = []
         self.potential_nodes = []
-        self.completed = False
-        self.path = []
-    
-    def initialise_db(self):
-        connection = sqlite3.connect('reverse.db')
-        with open('./api/search_methods/schema.sql') as schema:
-            connection.executescript(schema.read())
-        connection.commit()
-        connection.close()
+
+        self.initialise()
     
     def connecto_to_db(self):
         db = sqlite3.connect('reverse.db')
-        return db
+        cursor = db.cursor()
+        return cursor, db
+    
+    def initialise_db(self):
+        cursor, db = self.connecto_to_db()
+        with open('./api/search_methods/schema.sql') as schema:
+            cursor.executescript(schema.read())
+        db.commit()
+        db.close()
     
     def expand_vertex(self):
         for edge in self.new_node.graph_node.edges:
             if edge.end not in self.expanded_nodes:
-                vertex = ReverseAStarVertex(edge.end, self.new_node.g + edge.weight, self.target)
+                vertex = ReverseAStarVertex(edge.end, self.new_node.g + edge.weight, self.start)
                 self.potential_nodes.append(vertex)
         self.expanded_nodes.append(self.new_node.graph_node)
     
@@ -35,19 +38,39 @@ class ReverseAStar:
         max_g_node = max(min_f_nodes, key=attrgetter('g'))
         self.new_node = max_g_node
         self.potential_nodes = [node for node in self.potential_nodes if node.graph_node != self.new_node.graph_node]
-        if self.new_node.graph_node == self.target:
-            self.completed = True
+        self.update_database()
+    
+    def update_database(self):
+        cursor, db = self.connecto_to_db()
+        cursor.execute('INSERT INTO heuristics (node_name, node_h) VALUES (?, ?)', (self.new_node.graph_node.name, self.new_node.g))
+        for row in cursor.execute('SELECT * FROM heuristics'):
+            print(row)
+        db.commit()
+        db.close()
+    
+    def initialise(self):
+        self.initialise_db()
+        self.new_node = ReverseAStarVertex(self.target, 0, self.start)
+    
+    def find_heuristic(self, node):
+        while node not in self.expanded_nodes:
+            self.expand_vertex()
+            self.new_vertex()
 
 
 class ReverseAStarVertex:
-    def __init__(self, graph_node, distance, target):
+    def __init__(self, graph_node, distance, start):
         self.graph_node = graph_node
         self.g = distance
-        self.h = self.manhattan(target)
+        self.h = self.manhattan(start)
         self.f = self.g + self.h
     
     def __str__(self):
         return f"Node: {self.graph_node.name}, distance: {self.f}"
     
-    def manhattan(self, target_node):
-        return abs(self.graph_node.x - target_node.x) + abs(self.graph_node.y - target_node.y)
+    def manhattan(self, start_node):
+        return abs(self.graph_node.x - start_node.x) + abs(self.graph_node.y - start_node.y)
+
+graph = Graph([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+search = ReverseAStar(graph, graph.nodes[0], graph.nodes[-1])
+search.find_heuristic(graph.nodes[4])
