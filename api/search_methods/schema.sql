@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS heuristics;
+
+CREATE TABLE heuristics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    node_name TEXT NOT NULL,
+    node_h SMALLINT NOT NULL
+);

@@ -1,5 +1,4 @@
 from errors import PositionError # type: ignore
-from graph import Graph #type: ignore
 from tree import Tree, TreeNode # type: ignore
 import math
 from operator import attrgetter
@@ -77,10 +76,3 @@ class AStarVertex:
     
     def euclidean(self, start_node, target_node):
         return math.sqrt((start_node.x - target_node.x) ** 2 + (start_node.y - target_node.y) ** 2)
-
-graph = Graph([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
-search = AStarSearch(graph, (0, 0), (2, 2))
-search.search()
-for node in search.path:
-    print(node.value.graph_node, node.value.f)
-search.tree.render_tree()
