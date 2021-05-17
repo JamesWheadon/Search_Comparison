@@ -1,5 +1,4 @@
 from operator import attrgetter
-from graph import Graph #type: ignore
 import sqlite3
 
 class ReverseAStar:
@@ -51,7 +50,7 @@ class ReverseAStar:
         self.new_node = ReverseAStarVertex(self.target, 0, self.start)
         self.update_db()
     
-    def find_heuristic(self, node):
+    def find_heuristic(self, node, target=None):
         while node not in self.expanded_nodes:
             self.expand_vertex()
             if self.potential_nodes:
